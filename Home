@@ -1,1 +1,1009 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Kyodai - Vocabulary Matching Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2ee5e8;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid black;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            color: black;
+            font-size: 36px;
+        }
+        
+        .subject-selection {
+            background-color: #a1fa89;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid black;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-selection {
+            background-color: #f169cf;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid black;
+            margin-bottom: 20px;
+        }
+        
+        .upload-section {
+            background-color: #fdfa17;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid black;
+            margin-bottom: 20px;
+        }
+        
+        select, button {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid black;
+            font-size: 16px;
+            background-color: white;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        button {
+            background-color: #2ee5e8;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #25b6b9;
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .term-container, .definition-container {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 10px;
+        }
+        
+        .term, .definition {
+            background-color: #a1fa89;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid black;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .term {
+            clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%);
+            padding-right: 30px;
+        }
+        
+        .definition {
+            clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%);
+            padding-left: 30px;
+        }
+        
+        .term.selected, .definition.selected {
+            background-color: #f169cf;
+            transform: scale(1.05);
+        }
+        
+        .term.matched, .definition.matched {
+            background-color: #fdfa17;
+            cursor: default;
+        }
+        
+        .hint-btn {
+            background-color: #f169cf;
+            margin-top: 20px;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .celebration-content {
+            text-align: center;
+            animation: pop 0.5s ease-in-out;
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .certificate {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 10px solid #2ee5e8;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .student-input {
+            margin: 20px 0;
+        }
+        
+        .student-input input {
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid black;
+            margin: 5px;
+        }
+        
+        .explanation-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .media-container {
+            border: 2px solid black;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .keyword {
+            background-color: #a1fa89;
+            padding: 5px 10px;
+            border-radius: 10px;
+            border: 2px solid black;
+            cursor: pointer;
+        }
+        
+        .keyword-definition {
+            display: none;
+            background-color: #f169cf;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+            border: 2px solid black;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid black;
+            margin-top: 20px;
+            resize: vertical;
+        }
+        
+        .record-btn {
+            background-color: #f169cf;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Coding Kyodai Vocabulary Matcher</h1>
+            <p>Match terms with definitions and master coding vocabulary!</p>
+        </header>
+        
+        <div class="subject-selection">
+            <h2>Step 1: Choose a Subject</h2>
+            <select id="subject-category">
+                <option value="">Select a Category</option>
+                <option value="computer-science">Computer Science</option>
+                <option value="digital-media">Digital Media</option>
+                <option value="ict">ICT</option>
+            </select>
+            
+            <select id="subject-topic" disabled>
+                <option value="">Select a Topic</option>
+            </select>
+        </div>
+        
+        <div class="difficulty-selection">
+            <h2>Step 2: Choose Difficulty Level</h2>
+            <button class="difficulty-btn" data-level="easy">Easy</button>
+            <button class="difficulty-btn" data-level="medium">Medium</button>
+            <button class="difficulty-btn" data-level="hard">Hard</button>
+            <p id="difficulty-info">Easy: Color-coded puzzle pieces to help match | Medium: No color hints but unlimited time | Hard: 2-minute timed challenge</p>
+        </div>
+        
+        <div class="upload-section">
+            <h2>Or Upload Your Own Vocabulary List</h2>
+            <p>Create a CSV file with terms in column A and definitions in column B (minimum 12 words)</p>
+            <input type="file" id="csv-upload" accept=".csv">
+            <button id="upload-btn">Upload and Start</button>
+        </div>
+        
+        <div class="student-input">
+            <h2>Student Information</h2>
+            <input type="text" id="student-name" placeholder="Your Name">
+            <input type="text" id="student-class" placeholder="Your Class">
+        </div>
+        
+        <button id="start-game" disabled>Start Matching Game</button>
+        <button id="start-explanation">Try Explanation Activity Instead</button>
+        
+        <div class="game-area" id="matching-game">
+            <div class="timer" id="game-timer">Time: <span>0:00</span></div>
+            <div class="game-board">
+                <div class="term-container" id="terms">
+                    <!-- Terms will be populated here -->
+                </div>
+                <div class="definition-container" id="definitions">
+                    <!-- Definitions will be populated here -->
+                </div>
+            </div>
+            <button class="hint-btn" id="hint-button">Give me a hint!</button>
+        </div>
+        
+        <div class="explanation-area" id="explanation-activity">
+            <h2>Explanation Activity</h2>
+            <div class="media-container">
+                <img src="/api/placeholder/400/300" alt="Sample graphic to explain">
+                <p>Explain what this graphic represents using the keywords below.</p>
+            </div>
+            
+            <div class="keywords-list" id="keywords">
+                <!-- Sample keywords -->
+                <div class="keyword">Algorithm
+                    <div class="keyword-definition">A set of instructions to perform a task</div>
+                </div>
+                <div class="keyword">Variable
+                    <div class="keyword-definition">A named storage location for data</div>
+                </div>
+                <div class="keyword">Loop
+                    <div class="keyword-definition">Code that repeats until a condition is met</div>
+                </div>
+                <div class="keyword">Function
+                    <div class="keyword-definition">A reusable block of code</div>
+                </div>
+            </div>
+            
+            <textarea id="explanation-text" placeholder="Type or record your explanation here..."></textarea>
+            <button class="record-btn" id="record-btn">Start Voice Recording</button>
+            <button id="submit-explanation">Submit Explanation</button>
+        </div>
+        
+        <div class="certificate" id="game-certificate">
+            <h1>Certificate of Achievement</h1>
+            <h2>Coding Kyodai Vocabulary Master</h2>
+            <p>This certifies that <span id="cert-name">Student Name</span> from <span id="cert-class">Class</span> has successfully completed the <span id="cert-subject">Subject</span> vocabulary challenge at <span id="cert-difficulty">Difficulty</span> level!</p>
+            <p>Date: <span id="cert-date"></span></p>
+            <button id="download-certificate">Download Certificate (PDF)</button>
+        </div>
+    </div>
+    
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <h1>Congratulations!</h1>
+            <h2>You've completed all matches!</h2>
+            <img src="/api/placeholder/400/300" alt="Celebration graphic">
+            <p id="completion-message">You've mastered these vocabulary terms!</p>
+            <button id="continue-btn">Continue to Next Level</button>
+        </div>
+    </div>
+    
+    <script>
+        // Sample vocabulary data organized by categories and topics
+        const vocabularyData = {
+            "computer-science": {
+                "makecode-arcade": [
+                    { term: "Sprite", definition: "A 2D character or object that can move in a game" },
+                    { term: "Controller", definition: "Input device used to move characters or interact with a game" },
+                    { term: "Game loop", definition: "Continuously running code that updates game elements and draws to screen" },
+                    { term: "Collision detection", definition: "Determining when game objects intersect or overlap" },
+                    { term: "Health", definition: "A value representing how much damage a sprite can take before being defeated" },
+                    { term: "Score", definition: "A numeric value that increases when players achieve game objectives" },
+                    { term: "Projectile", definition: "An object that moves across the screen after being created" },
+                    { term: "Animation", definition: "A sequence of images that create the illusion of movement" },
+                    { term: "Tilemap", definition: "A grid-based layout used to design game levels" },
+                    { term: "Event handler", definition: "Code that runs in response to specific triggers like button presses" },
+                    { term: "Game state", definition: "The current condition of a game (menu, playing, game over)" },
+                    { term: "Physics engine", definition: "System that simulates physical properties like gravity and momentum" }
+                ],
+                "makecode-microbit": [
+                    { term: "Microcontroller", definition: "Small computer on a single integrated circuit" },
+                    { term: "LED matrix", definition: "5x5 grid of lights on the micro:bit" },
+                    { term: "Accelerometer", definition: "Sensor that detects movement and orientation" },
+                    { term: "Digital pin", definition: "Connection point for input/output devices" },
+                    { term: "Light sensor", definition: "Uses LEDs to detect ambient light levels" },
+                    { term: "Radio", definition: "Feature allowing micro:bits to communicate wirelessly" },
+                    { term: "Compass", definition: "Sensor that detects magnetic fields and direction" },
+                    { term: "Temperature sensor", definition: "Measures environmental temperature" },
+                    { term: "Bluetooth", definition: "Wireless communication protocol used by micro:bit" },
+                    { term: "Forever loop", definition: "Code that runs continuously while the micro:bit is powered" },
+                    { term: "On start", definition: "Code that runs once when the micro:bit is first powered on" },
+                    { term: "Pin press", definition: "Event triggered when touching a pin and GND simultaneously" }
+                ],
+                "robotics": [
+                    { term: "Actuator", definition: "Component that converts energy into physical motion" },
+                    { term: "Sensor", definition: "Device that detects changes in the environment" },
+                    { term: "Servo motor", definition: "Motor that can be positioned at specific angles" },
+                    { term: "DC motor", definition: "Motor that rotates continuously when powered" },
+                    { term: "Ultrasonic sensor", definition: "Uses sound waves to measure distance to objects" },
+                    { term: "IR sensor", definition: "Detects infrared light to sense objects or follow lines" },
+                    { term: "Gyroscope", definition: "Measures orientation and angular velocity" },
+                    { term: "Motor driver", definition: "Circuit that controls power to motors" },
+                    { term: "PWM", definition: "Pulse Width Modulation - technique to control power to motors" },
+                    { term: "Chassis", definition: "Main body frame of a robot" },
+                    { term: "Autonomous", definition: "Capable of operating without human control" },
+                    { term: "Feedback loop", definition: "System where output affects input for self-correction" }
+                ],
+                "coding-concepts": [
+                    { term: "Variable", definition: "Named storage location for data" },
+                    { term: "Loop", definition: "Code structure that repeats until a condition is met" },
+                    { term: "Conditional", definition: "Statement that performs different actions based on a condition" },
+                    { term: "Function", definition: "Reusable block of code that performs a specific task" },
+                    { term: "Parameter", definition: "Input value passed to a function" },
+                    { term: "Return value", definition: "Data sent back from a function when it completes" },
+                    { term: "Boolean", definition: "Data type with two possible values: true or false" },
+                    { term: "Array", definition: "Collection of values stored at numbered positions" },
+                    { term: "String", definition: "Sequence of text characters" },
+                    { term: "Debugging", definition: "Process of finding and fixing errors in code" },
+                    { term: "Algorithm", definition: "Step-by-step procedure for solving a problem" },
+                    { term: "Operator", definition: "Symbol that performs operations on values (+, -, *, /)" }
+                ]
+            },
+            "digital-media": {
+                "film-editing": [
+                    { term: "Timeline", definition: "Visual representation of video project duration" },
+                    { term: "Cut", definition: "Direct transition from one clip to another" },
+                    { term: "Fade", definition: "Gradual transition where clips overlap" },
+                    { term: "B-roll", definition: "Supplementary footage that adds context" },
+                    { term: "Ken Burns effect", definition: "Slow zoom and pan across still images" },
+                    { term: "J-cut", definition: "Audio from next scene starts before video changes" },
+                    { term: "L-cut", definition: "Audio from previous scene continues after video changes" },
+                    { term: "Keyframe", definition: "Marked point where animation properties are set" },
+                    { term: "Color grading", definition: "Process of altering video color appearance" },
+                    { term: "Aspect ratio", definition: "Proportional relationship between width and height" },
+                    { term: "Jump cut", definition: "Abrupt transition between similar shots" },
+                    { term: "Rendering", definition: "Process of exporting final video" }
+                ],
+                "3d-cad-design": [
+                    { term: "Vertices", definition: "Points where edges meet in a 3D model" },
+                    { term: "Edges", definition: "Lines connecting vertices" },
+                    { term: "Faces", definition: "Flat surfaces bounded by edges" },
+                    { term: "Extrude", definition: "Extending a 2D shape into 3D space" },
+                    { term: "Revolve", definition: "Rotating a 2D shape around an axis to create 3D object" },
+                    { term: "Boolean operation", definition: "Combining or subtracting 3D objects" },
+                    { term: "Fillet", definition: "Rounded edge or corner" },
+                    { term: "Chamfer", definition: "Beveled edge or corner" },
+                    { term: "Loft", definition: "Creating 3D form by connecting different profiles" },
+                    { term: "Parametric modeling", definition: "Creating designs that can be modified by changing parameters" },
+                    { term: "Assembly", definition: "Collection of parts that fit together" },
+                    { term: "Wireframe", definition: "Visual representation showing only edges of an object" }
+                ],
+                "animation": [
+                    { term: "Keyframe", definition: "Defines start and end points of a transition" },
+                    { term: "Tweening", definition: "Generating frames between keyframes automatically" },
+                    { term: "Onion skinning", definition: "Seeing previous and next frames as transparent overlays" },
+                    { term: "Frame rate", definition: "Number of images displayed per second" },
+                    { term: "Rigging", definition: "Creating a skeleton structure for character movement" },
+                    { term: "Squash and stretch", definition: "Principle giving objects weight and flexibility" },
+                    { term: "Anticipation", definition: "Preparation movement before main action" },
+                    { term: "Follow-through", definition: "Continuing movement after main action" },
+                    { term: "Easing", definition: "Gradual acceleration or deceleration of movement" },
+                    { term: "Path animation", definition: "Moving object along a defined route" },
+                    { term: "Timing", definition: "Speed at which actions occur" },
+                    { term: "Rotoscoping", definition: "Tracing over footage frame by frame" }
+                ],
+                "digital-art": [
+                    { term: "Layer", definition: "Separate level where elements can be edited independently" },
+                    { term: "Mask", definition: "Hides or reveals portions of a layer" },
+                    { term: "Selection", definition: "Area of an image marked for editing" },
+                    { term: "Brush", definition: "Tool that applies color or effects" },
+                    { term: "Vector", definition: "Graphic based on mathematical paths, not pixels" },
+                    { term: "Raster", definition: "Image made of pixels with fixed resolution" },
+                    { term: "Color palette", definition: "Set of colors used in an artwork" },
+                    { term: "Opacity", definition: "Level of transparency in an element" },
+                    { term: "Blending mode", definition: "How layers interact with layers below them" },
+                    { term: "Gradient", definition: "Gradual transition between colors" },
+                    { term: "Canvas", definition: "Working area where art is created" },
+                    { term: "Filter", definition: "Effect that alters appearance of an image" }
+                ]
+            },
+            "ict": {
+                "digital-citizenship": [
+                    { term: "Digital footprint", definition: "Trace of data created through online activities" },
+                    { term: "Privacy settings", definition: "Controls for managing who can see personal information" },
+                    { term: "Cyberbullying", definition: "Using digital communication to intimidate or harm others" },
+                    { term: "Copyright", definition: "Legal right giving creator exclusive publication rights" },
+                    { term: "Fair use", definition: "Limited use of copyrighted material without permission" },
+                    { term: "Creative Commons", definition: "Licenses allowing sharing of creative works" },
+                    { term: "Digital identity", definition: "Information about a person that exists online" },
+                    { term: "Password security", definition: "Practices to protect access to accounts" },
+                    { term: "Two-factor authentication", definition: "Security method requiring two types of verification" },
+                    { term: "Online etiquette", definition: "Acceptable behavior in digital environments" },
+                    { term: "Media literacy", definition: "Ability to critically evaluate digital content" },
+                    { term: "Information privacy", definition: "Right to control personal information collection and use" }
+                ],
+                "digital-literacy": [
+                    { term: "Cloud storage", definition: "Online space for storing and accessing data" },
+                    { term: "URL", definition: "Web address used to locate resources online" },
+                    { term: "Browser", definition: "Software used to access and view websites" },
+                    { term: "Search engine", definition: "Tool that searches for information on the web" },
+                    { term: "Keywords", definition: "Terms used in searches to find relevant information" },
+                    { term: "File format", definition: "Standard structure defining how data is stored in a file" },
+                    { term: "Hyperlink", definition: "Reference that allows navigation to other content" },
+                    { term: "Download", definition: "Transferring data from internet to local device" },
+                    { term: "Upload", definition: "Transferring data from local device to internet" },
+                    { term: "Digital collaboration", definition: "Working together using online tools" },
+                    { term: "Spreadsheet", definition: "Application for organizing and calculating data in cells" },
+                    { term: "Database", definition: "Organized collection of structured information" }
+                ]
+            }
+        };
+        
+        // DOM elements
+        const categorySelect = document.getElementById('subject-category');
+        const topicSelect = document.getElementById('subject-topic');
+        const startGameBtn = document.getElementById('start-game');
+        const startExplanationBtn = document.getElementById('start-explanation');
+        const gameArea = document.getElementById('matching-game');
+        const explanationArea = document.getElementById('explanation-activity');
+        const termsContainer = document.getElementById('terms');
+        const definitionsContainer = document.getElementById('definitions');
+        const hintButton = document.getElementById('hint-button');
+        const gameTimer = document.getElementById('game-timer');
+        const celebration = document.getElementById('celebration');
+        const continueBtn = document.getElementById('continue-btn');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const certificate = document.getElementById('game-certificate');
+        const downloadCertBtn = document.getElementById('download-certificate');
+        
+        // Game state variables
+        let currentTerms = [];
+        let currentDefinitions = [];
+        let selectedTerm = null;
+        let selectedDefinition = null;
+        let matchedPairs = 0;
+        let totalPairs = 6;
+        let difficultyLevel = '';
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let correctCount = {};  // Track correct matches for progressive difficulty
+        
+        // Event listeners for category and topic selection
+        categorySelect.addEventListener('change', function() {
+            const category = this.value;
+            topicSelect.innerHTML = '<option value="">Select a Topic</option>';
+            
+            if (category) {
+                topicSelect.disabled = false;
+                
+                for (const topic in vocabularyData[category]) {
+                    const option = document.createElement('option');
+                    option.value = topic;
+                    option.textContent = topic.split('-').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                    topicSelect.appendChild(option);
+                }
+            } else {
+                topicSelect.disabled = true;
+            }
+        });
+        
+        topicSelect.addEventListener('change', function() {
+            startGameBtn.disabled = !this.value;
+        });
+        
+        // Event listeners for difficulty selection
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                difficultyLevel = this.dataset.level;
+                difficultyBtns.forEach(b => b.style.fontWeight = 'normal');
+                this.style.fontWeight = 'bold';
+            });
+        });
+        
+        // Start game button click handler
+        startGameBtn.addEventListener('click', function() {
+            if (!difficultyLevel) {
+                alert('Please select a difficulty level');
+                return;
+            }
+            
+            const category = categorySelect.value;
+            const topic = topicSelect.value;
+            
+            if (category && topic) {
+                startGame(category, topic);
+            }
+        });
+        
+        // Start explanation activity
+        startExplanationBtn.addEventListener('click', function() {
+            gameArea.style.display = 'none';
+            explanationArea.style.display = 'block';
+        });
+        
+        // Toggle keyword definitions
+        document.getElementById('keywords').addEventListener('click', function(e) {
+            if (e.target.classList.contains('keyword')) {
+                const definition = e.target.querySelector('.keyword-definition');
+                if (definition) {
+                    const allDefinitions = document.querySelectorAll('.keyword-definition');
+                    allDefinitions.forEach(def => {
+                        if (def !== definition) def.style.display = 'none';
+                    });
+                    
+                    definition.style.display = definition.style.display === 'block' ? 'none' : 'block';
+                }
+            }
+        });
+        
+        // Voice recording simulation
+        document.getElementById('record-btn').addEventListener('click', function() {
+            const recordBtn = this;
+            if (recordBtn.textContent === 'Start Voice Recording') {
+                recordBtn.textContent = 'Stop Recording';
+                recordBtn.style.backgroundColor = '#ff6b6b';
+                // In a real implementation, this would start recording
+                setTimeout(() => {
+                    recordBtn.textContent = 'Stop Recording';
+                }, 100);
+            } else {
+                recordBtn.textContent = 'Start Voice Recording';
+                recordBtn.style.backgroundColor = '#f169cf';
+                document.getElementById('explanation-text').value += "\n[Voice recording would be transcribed here]";
+            }
+        });
+        
+        // Start the vocabulary matching game
+        function startGame(category, topic) {
+            // Reset game state
+            matchedPairs = 0;
+            termsContainer.innerHTML = '';
+            definitionsContainer.innerHTML = '';
+            selectedTerm = null;
+            selectedDefinition = null;
+            
+            // Setup timer if hard difficulty
+            if (difficultyLevel === 'hard') {
+                startTimer();
+            } else {
+                gameTimer.style.display = 'none';
+            }
+            
+            // Get vocabulary terms for selected topic
+            let vocabulary = vocabularyData[category][topic];
+            
+            // If we have already tracked some correct answers, prioritize new words
+            if (correctCount[topic]) {
+                // Sort by least correct answers
+                vocabulary.sort((a, b) => {
+                    const countA = correctCount[topic][a.term] || 0;
+                    const countB = correctCount[topic][b.term] || 0;
+                    return countA - countB;
+                });
+            } else {
+                // Initialize tracking for this topic
+                correctCount[topic] = {};
+            }
+            
+            // Select 6 terms (prioritizing less-known terms)
+            currentTerms = vocabulary.slice(0, 6);
+            currentDefinitions = [...currentTerms];
+            
+            // Shuffle definitions
+            shuffleArray(currentDefinitions);
+            
+            // Create term elements
+            currentTerms.forEach((item, index) => {
+                const termElement = document.createElement('div');
+                termElement.className = 'term';
+                termElement.textContent = item.term;
+                termElement.dataset.index = index;
+                
+                // For easy difficulty, add color coding
+                if (difficultyLevel === 'easy') {
+                    termElement.style.backgroundColor = getColorForIndex(index);
+                }
+                
+                termElement.addEventListener('click', handleTermClick);
+                termsContainer.appendChild(termElement);
+            });
+            
+            // Create definition elements
+            currentDefinitions.forEach((item, index) => {
+                const definitionElement = document.createElement('div');
+                definitionElement.className = 'definition';
+                definitionElement.textContent = item.definition;
+                definitionElement.dataset.term = item.term;
+                
+                // For easy difficulty, find the matching term index
+                if (difficultyLevel === 'easy') {
+                    const termIndex = currentTerms.findIndex(t => t.term === item.term);
+                    definitionElement.style.backgroundColor = getColorForIndex(termIndex);
+                }
+                
+                definitionElement.addEventListener('click', handleDefinitionClick);
+                definitionsContainer.appendChild(definitionElement);
+            });
+            
+            // Show game area
+            gameArea.style.display = 'block';
+            explanationArea.style.display = 'none';
+        }
+        
+        // Handle term click
+        function handleTermClick(e) {
+            if (e.target.classList.contains('matched')) return;
+            
+            // Deselect previously selected term
+            if (selectedTerm) {
+                selectedTerm.classList.remove('selected');
+            }
+            
+            // Select current term
+            selectedTerm = e.target;
+            selectedTerm.classList.add('selected');
+            
+            // Check for match if a definition is also selected
+            if (selectedDefinition) {
+                checkForMatch();
+            }
+        }
+        
+        // Handle definition click
+        function handleDefinitionClick(e) {
+            if (e.target.classList.contains('matched')) return;
+            
+            // Deselect previously selected definition
+            if (selectedDefinition) {
+                selectedDefinition.classList.remove('selected');
+            }
+            
+            // Select current definition
+            selectedDefinition = e.target;
+            selectedDefinition.classList.add('selected');
+            
+            // Check for match if a term is also selected
+            if (selectedTerm) {
+                checkForMatch();
+            }
+        }
+        
+        // Check if selected term and definition match
+        function checkForMatch() {
+            const termIndex = selectedTerm.dataset.index;
+            const termText = currentTerms[termIndex].term;
+            const definitionTerm = selectedDefinition.dataset.term;
+            
+            if (termText === definitionTerm) {
+                // Match found!
+                selectedTerm.classList.remove('selected');
+                selectedDefinition.classList.remove('selected');
+                
+                selectedTerm.classList.add('matched');
+                selectedDefinition.classList.add('matched');
+                
+                // Track correct matches
+                const topic = topicSelect.value;
+                if (!correctCount[topic][termText]) {
+                    correctCount[topic][termText] = 0;
+                }
+                correctCount[topic][termText]++;
+                
+                // Disable click events for matched items
+                selectedTerm.removeEventListener('click', handleTermClick);
+                selectedDefinition.removeEventListener('click', handleDefinitionClick);
+                
+                // Reset selection
+                selectedTerm = null;
+                selectedDefinition = null;
+                
+                // Count matches
+                matchedPairs++;
+                
+                // Check if all matched
+                if (matchedPairs === totalPairs) {
+                    gameComplete();
+                }
+            } else {
+                // No match - wait a moment then deselect
+                setTimeout(() => {
+                    if (selectedTerm) selectedTerm.classList.remove('selected');
+                    if (selectedDefinition) selectedDefinition.classList.remove('selected');
+                    selectedTerm = null;
+                    selectedDefinition = null;
+                }, 1000);
+            }
+        }
+        
+        // Handle game completion
+        function gameComplete() {
+            // Stop timer if running
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // Show celebration
+            celebration.style.display = 'flex';
+            
+            // Update completion message
+            const completionMsg = document.getElementById('completion-message');
+            if (difficultyLevel === 'hard') {
+                completionMsg.textContent = `Congratulations! You completed the challenge in ${formatTime(secondsElapsed)}!`;
+                
+                // Generate certificate for hard difficulty
+                if (secondsElapsed <= 120) { // 2 minutes or less
+                    generateCertificate();
+                }
+            } else {
+                completionMsg.textContent = 'Great job! You've matched all the terms correctly!';
+            }
+        }
+        
+        // Generate certificate
+        function generateCertificate() {
+            const studentName = document.getElementById('student-name').value || 'Student';
+            const studentClass = document.getElementById('student-class').value || 'Class';
+            
+            document.getElementById('cert-name').textContent = studentName;
+            document.getElementById('cert-class').textContent = studentClass;
+            document.getElementById('cert-subject').textContent = 
+                topicSelect.options[topicSelect.selectedIndex].text;
+            document.getElementById('cert-difficulty').textContent = 
+                difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1);
+            
+            const today = new Date();
+            document.getElementById('cert-date').textContent = 
+                today.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            
+            // Show certificate
+            certificate.style.display = 'block';
+        }
+        
+        // Continue to next level
+        continueBtn.addEventListener('click', function() {
+            celebration.style.display = 'none';
+            
+            // Check if there are more words to learn in current topic
+            const topic = topicSelect.value;
+            const category = categorySelect.value;
+            
+            // Find words that haven't been mastered (correct < 3 times)
+            const remainingWords = vocabularyData[category][topic].filter(item => {
+                return !correctCount[topic][item.term] || correctCount[topic][item.term] < 3;
+            });
+            
+            if (remainingWords.length >= 6) {
+                // Start a new game with remaining words
+                startGame(category, topic);
+            } else {
+                // All words mastered
+                alert('Congratulations! You have mastered all words in this topic!');
+            }
+        });
+        
+        // Download certificate
+        downloadCertBtn.addEventListener('click', function() {
+            alert('In a real implementation, this would generate and download a PDF certificate.');
+        });
+        
+        // Hint button
+        hintButton.addEventListener('click', function() {
+            if (!selectedTerm && !selectedDefinition) {
+                alert('Select a term or definition first to get a hint.');
+                return;
+            }
+            
+            if (selectedTerm && !selectedDefinition) {
+                // Hint for term - highlight matching definition
+                const termText = currentTerms[selectedTerm.dataset.index].term;
+                const definitions = definitionsContainer.querySelectorAll('.definition:not(.matched)');
+                
+                definitions.forEach(def => {
+                    if (def.dataset.term === termText) {
+                        def.style.boxShadow = '0 0 15px #fdfa17';
+                        setTimeout(() => {
+                            def.style.boxShadow = 'none';
+                        }, 2000);
+                    }
+                });
+            } else if (selectedDefinition && !selectedTerm) {
+                // Hint for definition - highlight matching term
+                const definitionTerm = selectedDefinition.dataset.term;
+                const terms = termsContainer.querySelectorAll('.term:not(.matched)');
+                
+                terms.forEach(term => {
+                    const termText = currentTerms[term.dataset.index].term;
+                    if (termText === definitionTerm) {
+                        term.style.boxShadow = '0 0 15px #fdfa17';
+                        setTimeout(() => {
+                            term.style.boxShadow = 'none';
+                        }, 2000);
+                    }
+                });
+            }
+        });
+        
+        // CSV upload
+        document.getElementById('upload-btn').addEventListener('click', function() {
+            const fileInput = document.getElementById('csv-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a CSV file');
+                return;
+            }
+            
+            // In a real implementation, this would parse the CSV file
+            // For demo purposes, we'll simulate CSV data
+            const customVocabulary = [
+                { term: "Custom Term 1", definition: "Custom Definition 1" },
+                { term: "Custom Term 2", definition: "Custom Definition 2" },
+                { term: "Custom Term 3", definition: "Custom Definition 3" },
+                { term: "Custom Term 4", definition: "Custom Definition 4" },
+                { term: "Custom Term 5", definition: "Custom Definition 5" },
+                { term: "Custom Term 6", definition: "Custom Definition 6" },
+                { term: "Custom Term 7", definition: "Custom Definition 7" },
+                { term: "Custom Term 8", definition: "Custom Definition 8" },
+                { term: "Custom Term 9", definition: "Custom Definition 9" },
+                { term: "Custom Term 10", definition: "Custom Definition 10" },
+                { term: "Custom Term 11", definition: "Custom Definition 11" },
+                { term: "Custom Term 12", definition: "Custom Definition 12" }
+            ];
+            
+            // Create custom category/topic in vocabulary data
+            vocabularyData['custom'] = {
+                'uploaded-vocabulary': customVocabulary
+            };
+            
+            // Select the custom category/topic
+            categorySelect.innerHTML = '<option value="custom">Custom</option>';
+            topicSelect.innerHTML = '<option value="uploaded-vocabulary">Uploaded Vocabulary</option>';
+            
+            categorySelect.value = 'custom';
+            topicSelect.value = 'uploaded-vocabulary';
+            topicSelect.disabled = false;
+            
+            startGameBtn.disabled = false;
+            
+            alert('CSV uploaded successfully! Ready to start game with custom vocabulary.');
+        });
+        
+        // Timer functions
+        function startTimer() {
+            gameTimer.style.display = 'block';
+            secondsElapsed = 0;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+                
+                // Time limit for hard mode (2 minutes)
+                if (difficultyLevel === 'hard' && secondsElapsed >= 120) {
+                    clearInterval(timerInterval);
+                    alert('Time\'s up! Try again to complete within 2 minutes.');
+                    resetGame();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(secondsElapsed / 60);
+            const seconds = secondsElapsed % 60;
+            gameTimer.querySelector('span').textContent = 
+                `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+        
+        function resetGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            const category = categorySelect.value;
+            const topic = topicSelect.value;
+            
+            if (category && topic) {
+                startGame(category, topic);
+            }
+        }
+        
+        // Helper functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function getColorForIndex(index) {
+            // Pastel colors for easy mode
+            const colors = [
+                '#FFB6C1', // Light Pink
+                '#ADD8E6', // Light Blue
+                '#90EE90', // Light Green
+                '#FFFACD', // Lemon Chiffon
+                '#E6E6FA', // Lavender
+                '#FFDAB9'  // Peach
+            ];
+            return colors[index % colors.length];
+        }
+    </script>
+</body>
+</html>
